@@ -5,13 +5,8 @@ from . import journal
 from . import metrics
 from . import tasklist
 
-# latest time in am hours to count as the previous day (for late night logging)
-PREVDAY_TIME = datetime.time(4,30)
-
 # get the appropriate subpath for a log file based on the given date
 def get_logfile_subpath(date):
-    if date.time() < PREVDAY_TIME:
-        date = date - datetime.timedelta(days=1)
     return os.path.join(date.strftime("%Y"),str(date.month),"{}.txt".format(date.day))
 
 # prompt the user for information about their day and produce a log file
@@ -23,15 +18,19 @@ def log(date, config):
     if not os.path.exists(subdir):
         os.makedirs(subdir)
 
+    if os.path.exists(path):
+        print(f"Log file for {date} already exists, aborting")
+        return
+
     with open(path, "w") as f:
 
         # journal section
         # heading(f,"")
         journal.execute(f,config)
         
-        # metrics section
-        heading(f,"metrics")
-        metrics.execute(f)
+        # metrics section (not using this anymore)
+        # heading(f,"metrics")
+        # metrics.execute(f)
 
         # tasklist section
         heading(f,"tasks")
